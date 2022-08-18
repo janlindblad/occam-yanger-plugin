@@ -1,0 +1,30 @@
+#!/bin/sh
+
+echo "Occam Yanger Plugin Installation"
+if [ ! -r yanger_occam.beam ]; then
+  if [ "$NCS_DIR" = "" ]; then
+    echo "NCS_DIR not set. Source the ncsrc file in the NSO installation you want use"
+    exit 1
+  fi
+  if [ ! -x "$NCS_DIR/bin/erlc" ]; then
+    echo "Erlang compiler erlc not found"
+    exit 2
+  fi
+  "$NCS_DIR/bin/erlc" -I "$NCS_DIR/erlang" yanger_occam.erl
+  if [ ! "$?" -eq 0 ]; then
+    echo "Erlang compilation failed"
+    exit 3
+  fi
+fi
+cp yanger_occam.beam "$NCS_DIR/lib/ncs/lib/confdc/yanger/priv/"
+if [ ! "$?" -eq 0 ]; then
+  echo "Installation failed"
+  exit 4
+fi
+if [ ! -r "$NCS_DIR/lib/ncs/lib/confdc/yanger/priv/yanger_occam.beam" ]; then
+  echo "Installation failed"
+  exit 5
+fi
+echo "Installation complete, Occam plugin now available in NSO installation at $NCS_DIR"
+echo "Use like this:"
+echo "yanger -f occam module.yang > occam/module.yang"
